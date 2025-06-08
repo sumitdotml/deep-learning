@@ -2,3 +2,7 @@
 .env
 __pycache__
 .venv/
+
+# cs231n
+imagenet_val_25.npz
+cifar-10-batches-py/
