@@ -53,7 +53,8 @@ class Decoder(nn.Module):
         # output: [batch_size, 1, hidden_size]
         # processing through LSTM with previous hidden/cell states from encoder or previous step
         # the LSTM maintains separate hidden/cell states for each example in the batch
-        output, (hidden, cell_state) = self.lstm(embedded_input, (hidden, cell_state))
+        output, (hidden, cell_state) = self.lstm(
+            embedded_input, (hidden, cell_state))
 
         # [batch_size, 1, hidden_size] -> [batch_size, hidden_size]
         # removing the sequence dimension since I only had seq_len=1
