@@ -1,8 +1,8 @@
 import torch
 import torch.nn as nn
 
-from .decoder import Decoder
-from .encoder import Encoder
+from decoder import Decoder
+from encoder import Encoder
 
 
 class Seq2Seq(nn.Module):
@@ -15,18 +15,21 @@ class Seq2Seq(nn.Module):
     def forward(self, src: torch.Tensor, tgt: torch.Tensor):
         """
         Forward pass for training
-        src: [batch_size, src_seq_len] - source sequence (e.g., English sentence)
-        tgt: [batch_size, tgt_seq_len] - target sequence (e.g., Spanish sentence)
+        src: [batch_size, src_seq_len] - source sequence (e.g., German sentence)
+        tgt: [batch_size, tgt_seq_len] - target sequence (e.g., English sentence)
         Returns:
-            predictions: [batch_size, tgt_seq_len-1, tgt_vocab_size] - predicted target sequence
-            expected_output: [batch_size, tgt_seq_len-1, tgt_vocab_size] - expected target sequence
+            predictions: [batch_size, tgt_seq_len-1, tgt_vocab_size] - predicted target sequence logits
+            expected_output: [batch_size, tgt_seq_len-1] - expected target sequence (token IDs)
         """
         # STEP 1: ENCODE THE SOURCE SEQUENCE
         # Pass the entire source sequence through encoder to get context
         # The encoder will return hidden_state and cell_state that capture the meaning
         # of the entire source sequence
         # TODO: call self.encoder(src) and capture hidden_state, cell_state
-        hidden_state, cell_state = self.encoder(src).to(self.device)
+        hidden_state, cell_state = self.encoder(src)
+        hidden_state, cell_state = hidden_state.to(self.device), cell_state.to(
+            self.device
+        )
 
         # STEP 2: PREPARE FOR DECODING
         # During training, we use "teacher forcing" - we feed the correct previous
@@ -123,12 +126,12 @@ class Seq2Seq(nn.Module):
                 current_input, hidden_state, cell_state
             )
             predicted_token = torch.argmax(projection, dim=-1)
+            generated_sequences.append(predicted_token)
 
             # if all examples in the batch predicted the end token, stop generating
             if torch.all(predicted_token == end_token):
                 break
 
-            generated_sequences.append(predicted_token)
             hidden_state, cell_state = decoder_hidden, decoder_cell_state
             current_input = predicted_token
 

@@ -6,3 +6,7 @@ __pycache__
 # cs231n
 imagenet_val_25.npz
 cifar-10-batches-py/
+
+# seq2seq
+data/
+checkpoints/
